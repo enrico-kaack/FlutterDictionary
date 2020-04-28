@@ -80,10 +80,8 @@ class _MyHomePageState extends State<MyHomePage> {
             onChanged: (String value) async {
               var db = TranslationService();
               await db.openDatabaseOrCopyIfNotExists();
-              print("Search for $value");
               var result = await db.search(value);
               _updateList(result);
-              print("result: $result");
             },
           ),
           Expanded(child: ResultList(newTranslationNotifier))
