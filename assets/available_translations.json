@@ -1,0 +1,9 @@
+[
+  {
+    "source": "DE-de",
+    "targets": [{
+      "target": "EN-en",
+      "uri": "https://download.wikdict.com/dictionaries/sqlite/2_2020-02/generic/de-en.sqlite3"
+    }]
+  }
+]

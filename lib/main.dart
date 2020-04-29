@@ -1,9 +1,9 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:translator/database.dart';
+import 'package:translator/download_page.dart';
 
 void main() => runApp(MyApp());
-
 
 class MyApp extends StatelessWidget {
   // This widget is the root of your application.
@@ -12,15 +12,6 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Translator',
       theme: ThemeData(
-        // This is the theme of your application.
-        //
-        // Try running your application with "flutter run". You'll see the
-        // application has a blue toolbar. Then, without quitting the app, try
-        // changing the primarySwatch below to Colors.green and then invoke
-        // "hot reload" (press "r" in the console where you ran "flutter run",
-        // or simply save your changes to "hot reload" in a Flutter IDE).
-        // Notice that the counter didn't reset back to zero; the application
-        // is not restarted.
         primarySwatch: Colors.blue,
       ),
       home: MyHomePage(),
@@ -31,16 +22,14 @@ class MyApp extends StatelessWidget {
 class MyHomePage extends StatefulWidget {
   MyHomePage({Key key}) : super(key: key);
 
-
   @override
   _MyHomePageState createState() => _MyHomePageState();
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  final ValueNotifier<List<TranslationEntry>> newTranslationNotifier = new ValueNotifier([]);
+  final ValueNotifier<List<TranslationEntry>> newTranslationNotifier =
+      new ValueNotifier([]);
   var db = TranslationService();
-
-
 
   void _updateList(List<TranslationEntry> translations) {
     setState(() {
@@ -53,6 +42,15 @@ class _MyHomePageState extends State<MyHomePage> {
     return Scaffold(
       appBar: AppBar(
         title: Text("Translator"),
+        actions: <Widget>[
+          IconButton(
+            icon: Icon(Icons.file_download),
+            onPressed: () {
+              Navigator.push(context,
+                  new MaterialPageRoute(builder: (ctxt) => new DownloadPage()));
+            },
+          ),
+        ],
       ),
       body: Column(
         children: <Widget>[
@@ -74,9 +72,7 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 }
 
-
-
-class ResultList extends StatelessWidget{
+class ResultList extends StatelessWidget {
   final ValueListenable<List<TranslationEntry>> translationListener;
 
   ResultList(this.translationListener);
@@ -85,60 +81,61 @@ class ResultList extends StatelessWidget{
   Widget build(BuildContext context) {
     return ListView.separated(
       itemCount: this.translationListener.value.length,
-      itemBuilder: (context, index)
-      {
+      itemBuilder: (context, index) {
         return ListTile(
-          title: Text(this.translationListener.value[index].source_representation),
-          subtitle: Text(this.translationListener.value[index].bestTranslation().translation),
+          title:
+              Text(this.translationListener.value[index].source_representation),
+          subtitle: Text(this
+              .translationListener
+              .value[index]
+              .bestTranslation()
+              .translation),
           trailing: Icon(Icons.keyboard_arrow_right),
-          onTap: (){
+          onTap: () {
             Navigator.push(
               context,
-              new MaterialPageRoute(builder: (ctxt) => new SecondScreen(this.translationListener.value[index])),
+              new MaterialPageRoute(
+                  builder: (ctxt) =>
+                      new SecondScreen(this.translationListener.value[index])),
             );
           },
         );
       },
       separatorBuilder: (context, index) => Divider(),
-    );}
-
+    );
+  }
 }
 
-_renderVariations(List<TranslationSenseEntry> variations){
+_renderVariations(List<TranslationSenseEntry> variations) {
   return Column(
-    children: variations.map((e) =>
-      Row(
-        children: <Widget>[
-          Expanded(child: Text(e.sense)),
-          Expanded(child: Text(e.translation)),
-          Divider(
-            thickness: 1,
-          )
-        ],
-      )
-    ).toList(),
+    children: variations
+        .map((e) => Row(
+              children: <Widget>[
+                Expanded(child: Text(e.sense)),
+                Expanded(child: Text(e.translation)),
+                Divider(
+                  thickness: 1,
+                ),
+              ],
+            ))
+        .toList(),
   );
 }
-
 
 class SecondScreen extends StatefulWidget {
   TranslationEntry translationEntry;
 
-
-  SecondScreen(TranslationEntry translationEntry){
+  SecondScreen(TranslationEntry translationEntry) {
     this.translationEntry = translationEntry;
   }
 
-
-
   @override
-  State<StatefulWidget> createState()=> _SecondScreenState();
+  State<StatefulWidget> createState() => _SecondScreenState();
 }
 
-class _SecondScreenState extends State<SecondScreen>{
-
+class _SecondScreenState extends State<SecondScreen> {
   @override
-  Widget build (BuildContext ctxt) {
+  Widget build(BuildContext ctxt) {
     return new Scaffold(
       appBar: new AppBar(
         title: new Text(widget.translationEntry.source_representation),
@@ -147,16 +144,18 @@ class _SecondScreenState extends State<SecondScreen>{
         children: <Widget>[
           Expanded(
             child: ListView.builder(
-                itemCount: widget.translationEntry.variations.length,
-                itemBuilder: (context, index){
-                  return Card(
-                    child: ListTile(
-                      title: Text(widget.translationEntry.variations[index].translation),
-                      subtitle: Text(widget.translationEntry.variations[index].sense),
-                    ),
-                    margin: EdgeInsets.symmetric(vertical: 2.0, horizontal: 2.0),
-                  );
-                },
+              itemCount: widget.translationEntry.variations.length,
+              itemBuilder: (context, index) {
+                return Card(
+                  child: ListTile(
+                    title: Text(
+                        widget.translationEntry.variations[index].translation),
+                    subtitle:
+                        Text(widget.translationEntry.variations[index].sense),
+                  ),
+                  margin: EdgeInsets.symmetric(vertical: 2.0, horizontal: 2.0),
+                );
+              },
             ),
           )
         ],
