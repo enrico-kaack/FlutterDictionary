@@ -108,7 +108,8 @@ class _MyHomePageState extends State<MyHomePage> {
       bottomSheet: StreamBuilder<bool>(
         stream: _intialStateStreamController.stream,
         builder: (context, snapshot) {
-          if (snapshot.data == true) {
+          print("STREAM " + snapshot.data.toString());
+          if (snapshot.hasData && snapshot.data == true) {
             return Container(
               height: 200,
               margin: EdgeInsets.all(10),
