@@ -14,19 +14,29 @@ class TranslationService {
   Future _doneInitialising;
   Future get initializationDone => _doneInitialising;
 
+  Future<bool> get isNoDatabaseOfflineAvailable async{
+    await _doneInitialising;
+    return translationDatabases.isEmpty;
+  }
+
+  Future<void> rescan() {
+    return _loadAllOfflineAvailableDatabases();
+  }
+
   TranslationService() {
     _doneInitialising =  _loadAllOfflineAvailableDatabases();
   }
 
-  Future<List<DatabaseMetadata>> _loadAllOfflineAvailableDatabases() async {
+  Future<void> _loadAllOfflineAvailableDatabases() async {
     List<DatabaseMetadata> availableDatabases = [];
     var databaseDirectory = await getApplicationSupportDirectory();
-    await databaseDirectory.list(recursive: false, followLinks: false).forEach((element) async {
-      var databaseObject = await extractDatabaseMetadata(element.path);
+    var dirList = await databaseDirectory.list(recursive: false, followLinks: false).toList();
+    for (var dir in dirList){
+      var databaseObject = await extractDatabaseMetadata(dir.path);
       if (databaseObject != null){
         availableDatabases.add(databaseObject);
       }
-    });
+    }
     this.translationDatabases = availableDatabases;
   }
 

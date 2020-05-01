@@ -1,5 +1,9 @@
+import 'dart:async';
+import 'dart:ui';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/painting.dart';
 import 'package:flutter/widgets.dart';
 import 'package:translator/translation_service.dart';
 import 'package:translator/download_page.dart';
@@ -30,7 +34,9 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   final ValueNotifier<List<TranslationEntry>> newTranslationNotifier =
       new ValueNotifier([]);
-  var db = TranslationService();
+  StreamController<bool> _intialStateStreamController = StreamController<bool>.broadcast();
+
+  TranslationService db;
 
   void _updateList(List<TranslationEntry> translations) {
     setState(() {
@@ -38,6 +44,30 @@ class _MyHomePageState extends State<MyHomePage> {
     });
   }
 
+  Future<void> _recreateDatabaseList() async {
+    await this.db.rescan();
+    var databaseAvailable = await db.isNoDatabaseOfflineAvailable;
+    setState(() {
+      this.db = db;
+    });
+    _intialStateStreamController.add(databaseAvailable);
+
+  }
+
+  _setUpState() async {
+    this.db = TranslationService();
+    await db.initializationDone;
+    var databaseAvailable = await db.isNoDatabaseOfflineAvailable;
+    _intialStateStreamController.add(databaseAvailable);
+  }
+
+
+  @override
+  void initState() {
+    _setUpState();
+    super.initState();
+
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -46,10 +76,12 @@ class _MyHomePageState extends State<MyHomePage> {
         title: Text("Translator"),
         actions: <Widget>[
           IconButton(
-            icon: Icon(Icons.file_download),
+            icon: Icon(Icons.library_add),
             onPressed: () {
               Navigator.push(context,
-                  new MaterialPageRoute(builder: (ctxt) => new DownloadPage())).then((value) => this.db = TranslationService());
+                  new MaterialPageRoute(builder: (ctxt) => new DownloadPage())).then((value) {
+                    _recreateDatabaseList();
+              });
             },
           ),
         ],
@@ -73,9 +105,63 @@ class _MyHomePageState extends State<MyHomePage> {
           Expanded(child: ResultList(newTranslationNotifier))
         ],
       ),
+
+      bottomSheet: StreamBuilder<bool>(
+        stream: _intialStateStreamController.stream,
+        builder: (context, snapshot) {
+          if (snapshot.data == true) {
+            return Container(
+              height: 200,
+              margin: EdgeInsets.all(10),
+              child: SizedBox.expand(
+                child: Card(
+                  child: Container(
+                    margin: EdgeInsets.all(10),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.max,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: <Widget>[
+                        Text(
+                        "You have not downloaded any language pack yet.",
+                        style: TextStyle(fontSize: 22),),
+                        Text("You have to download at least one language pack to use this app!",
+                          style: TextTheme().headline1,
+
+                        ),
+
+                        RaisedButton(
+                          child: Text("Download now"),
+                          color: ThemeData().backgroundColor,
+                          onPressed: () {
+                            Navigator.push(context,
+                                new MaterialPageRoute(
+                                    builder: (context) => new DownloadPage()))
+                                .then((value) {
+                                  this._recreateDatabaseList();
+
+                            });
+                          },
+                        )
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            );
+          }else{
+            return Container(
+              width: 0,
+              height: 0,
+            );
+          }
+        },
+
+      ),
     );
   }
 }
+
+ 
 
 class ResultList extends StatelessWidget {
   final ValueListenable<List<TranslationEntry>> translationListener;
@@ -169,3 +255,4 @@ class _SecondScreenState extends State<SecondScreen> {
     );
   }
 }
+
