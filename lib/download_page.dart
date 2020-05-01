@@ -1,16 +1,14 @@
-
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:translator/datase_loader.dart';
 
-class DownloadPage extends StatefulWidget{
+class DownloadPage extends StatefulWidget {
   @override
   State<StatefulWidget> createState() => new _DownloadPageState();
-
 }
 
-class _DownloadPageState extends State<DownloadPage>{
+class _DownloadPageState extends State<DownloadPage> {
   @override
   Widget build(BuildContext context) {
     return new Scaffold(
@@ -28,39 +26,33 @@ class _DownloadPageState extends State<DownloadPage>{
       ),
     );
   }
-
 }
 
-
-
-class LanguageList extends StatelessWidget{
+class LanguageList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final state = Provider.of<TranslationState>(context);
 
     return ListView.builder(
-      itemCount: state.getTranslations.length,
-        itemBuilder: (context, index){
+        itemCount: state.getTranslations.length,
+        itemBuilder: (context, index) {
           return new TargetItem(
             availableTranslation: state.getTranslations[index],
           );
-        }
-    );
+        });
   }
-
 }
 
-class TargetItem extends StatefulWidget{
+class TargetItem extends StatefulWidget {
   AvailableTranslation availableTranslation;
 
   @override
   State<StatefulWidget> createState() => _TargetItemState();
 
   TargetItem({this.availableTranslation});
-
 }
 
-class _TargetItemState extends State<TargetItem>{
+class _TargetItemState extends State<TargetItem> {
   @override
   Widget build(BuildContext context) {
     final state = Provider.of<TranslationState>(context);
@@ -68,16 +60,15 @@ class _TargetItemState extends State<TargetItem>{
       title: Text(this.widget.availableTranslation.source),
       children: <Widget>[
         new Column(
-          children: _buildExpandableList(this.widget.availableTranslation.targets, state),
+          children: _buildExpandableList(
+              this.widget.availableTranslation.targets, state),
         )
       ],
     );
   }
-
 }
 
-_buildExpandableList(List<AvaiableTarget> targets, TranslationState state){
-
+_buildExpandableList(List<AvaiableTarget> targets, TranslationState state) {
   List<Widget> columnContent = [];
   for (AvaiableTarget target in targets) {
     columnContent.add(new ListTile(
@@ -85,11 +76,14 @@ _buildExpandableList(List<AvaiableTarget> targets, TranslationState state){
       leading: Icon(Icons.subdirectory_arrow_right),
       trailing: FutureBuilder<Container>(
         future: _iconForLoadingState(target),
-        builder: (context, snapshot){
-          if (snapshot.hasData){
+        builder: (context, snapshot) {
+          if (snapshot.hasData) {
             return snapshot.data;
-          }else{
-            return Container(width: 0,height: 0,);
+          } else {
+            return Container(
+              width: 0,
+              height: 0,
+            );
           }
         },
       ),
@@ -103,22 +97,19 @@ _buildExpandableList(List<AvaiableTarget> targets, TranslationState state){
         print("Done");
       },
     ));
-}
+  }
   return columnContent;
 }
 
 Future<Container> _iconForLoadingState(AvaiableTarget target) async {
   if (await target.isDownloaded()) return Container(child: Icon(Icons.check));
 
-
-  switch (target.loadingState){
+  switch (target.loadingState) {
     case LoadingState.NOT_FOUND:
       return Container(child: Icon(Icons.file_download));
     case LoadingState.LOADED:
       return Container(child: Icon(Icons.check));
     case LoadingState.DOWNLOADING:
       return Container(child: CircularProgressIndicator());
-
   }
 }
-

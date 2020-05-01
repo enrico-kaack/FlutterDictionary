@@ -1,20 +1,16 @@
-import 'dart:io';
-import 'package:flutter/foundation.dart';
+import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 import 'package:sqflite/sqflite.dart';
-import 'package:path/path.dart';
-import 'dart:typed_data';
-import 'package:flutter/services.dart';
-import 'package:path/path.dart' as p;
 import 'package:translator/languages.dart';
 
 class TranslationService {
   List<DatabaseMetadata> translationDatabases = [];
 
   Future _doneInitialising;
+
   Future get initializationDone => _doneInitialising;
 
-  Future<bool> get isNoDatabaseOfflineAvailable async{
+  Future<bool> get isNoDatabaseOfflineAvailable async {
     await _doneInitialising;
     return translationDatabases.isEmpty;
   }
@@ -24,16 +20,18 @@ class TranslationService {
   }
 
   TranslationService() {
-    _doneInitialising =  _loadAllOfflineAvailableDatabases();
+    _doneInitialising = _loadAllOfflineAvailableDatabases();
   }
 
   Future<void> _loadAllOfflineAvailableDatabases() async {
     List<DatabaseMetadata> availableDatabases = [];
     var databaseDirectory = await getApplicationSupportDirectory();
-    var dirList = await databaseDirectory.list(recursive: false, followLinks: false).toList();
-    for (var dir in dirList){
+    var dirList = await databaseDirectory
+        .list(recursive: false, followLinks: false)
+        .toList();
+    for (var dir in dirList) {
       var databaseObject = await extractDatabaseMetadata(dir.path);
-      if (databaseObject != null){
+      if (databaseObject != null) {
         availableDatabases.add(databaseObject);
       }
     }
@@ -44,22 +42,20 @@ class TranslationService {
     try {
       if (p.extension(path) == ".sqlite3") {
         var basename = p.basenameWithoutExtension(path);
-        var sourceLanguage = LanguageCodeHandler.parseLanguageCode(
-            basename.split("_")[0]);
-        var targetLanguage = LanguageCodeHandler.parseLanguageCode(
-            basename.split("_")[1]);
+        var sourceLanguage =
+            LanguageCodeHandler.parseLanguageCode(basename.split("_")[0]);
+        var targetLanguage =
+            LanguageCodeHandler.parseLanguageCode(basename.split("_")[1]);
 
         var database = await openDatabase(path);
-        return DatabaseMetadata(source: sourceLanguage, target: targetLanguage, database: database);
+        return DatabaseMetadata(
+            source: sourceLanguage, target: targetLanguage, database: database);
       }
-    } catch (e){
+    } catch (e) {
       print(e);
       return null;
     }
   }
-
-
-
 
   Future<List<TranslationEntry>> searchInAll(String searchQuery) async {
     //wait for class to finish initialising
@@ -75,19 +71,25 @@ class TranslationService {
     return allTranslations;
   }
 
-  Future<List<TranslationEntry>> searchInDatabase(String searchQuery, DatabaseMetadata databaseMetadata) async {
-    List<Map> maps = await databaseMetadata.database.rawQuery("""SELECT * FROM translation WHERE lexentry IN (
+  Future<List<TranslationEntry>> searchInDatabase(
+      String searchQuery, DatabaseMetadata databaseMetadata) async {
+    List<Map> maps = await databaseMetadata.database
+        .rawQuery("""SELECT * FROM translation WHERE lexentry IN (
 
 SELECT lexentry  FROM translation WHERE written_rep LIKE ?  GROUP BY lexentry ORDER BY MAX(score) DESC LIMIT 20
   )""", ['%$searchQuery%']);
 
     Map<String, TranslationEntry> groupMap = {};
     for (var row in maps) {
-      if (groupMap.containsKey(row['lexentry'])){
-        groupMap[row['lexentry']].variations.add(TranslationSenseEntry.fromMap(row));
-      }else {
+      if (groupMap.containsKey(row['lexentry'])) {
+        groupMap[row['lexentry']]
+            .variations
+            .add(TranslationSenseEntry.fromMap(row));
+      } else {
         groupMap[row['lexentry']] = TranslationEntry.fromMap(row);
-        groupMap[row['lexentry']].variations.add(TranslationSenseEntry.fromMap(row));
+        groupMap[row['lexentry']]
+            .variations
+            .add(TranslationSenseEntry.fromMap(row));
       }
     }
 
@@ -96,19 +98,17 @@ SELECT lexentry  FROM translation WHERE written_rep LIKE ?  GROUP BY lexentry OR
   }
 }
 
-class DatabaseMetadata{
+class DatabaseMetadata {
   Language source;
   Language target;
   Database database;
 
   bool get isOpened => database.isOpen;
-  
-  DatabaseMetadata({this.source, this.target, this.database});
 
+  DatabaseMetadata({this.source, this.target, this.database});
 }
 
-class TranslationEntry extends Comparable{
-
+class TranslationEntry extends Comparable {
   String source_representation;
 
   Language sourceLanguage;
@@ -119,7 +119,7 @@ class TranslationEntry extends Comparable{
   TranslationSenseEntry bestTranslation() {
     TranslationSenseEntry response = TranslationSenseEntry();
     for (var value in variations) {
-      if (response.score < value.score){
+      if (response.score < value.score) {
         response = value;
       }
     }
@@ -127,18 +127,15 @@ class TranslationEntry extends Comparable{
   }
 
   num score() {
-    return variations.fold(0.0, (value, element)  => value + element.score );
+    return variations.fold(0.0, (value, element) => value + element.score);
   }
 
-  TranslationEntry(source){
+  TranslationEntry(source) {
     this.source_representation = source;
   }
 
-
-
-  TranslationEntry.fromMap(Map<String, dynamic> map){
+  TranslationEntry.fromMap(Map<String, dynamic> map) {
     this.source_representation = map['written_rep'];
-
   }
 
   @override
@@ -146,12 +143,9 @@ class TranslationEntry extends Comparable{
     TranslationEntry otherTyped = other;
     return (otherTyped.score() - score()).round();
   }
-
-
-
-
 }
-class TranslationSenseEntry{
+
+class TranslationSenseEntry {
   String sense = "";
   String translation = "";
   num score = 0;
@@ -160,10 +154,7 @@ class TranslationSenseEntry{
     this.sense = map['sense'];
     this.translation = map['trans_list'];
     this.score = map['score'];
-
   }
-  TranslationSenseEntry(){}
 
-
-
+  TranslationSenseEntry() {}
 }

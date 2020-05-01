@@ -2,11 +2,8 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/foundation.dart';
-import 'package:http/http.dart' as http2;
-import 'package:path_provider/path_provider.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter/services.dart' show rootBundle;
-
+import 'package:path_provider/path_provider.dart';
 
 class TranslationState with ChangeNotifier {
   TranslationState() {
@@ -99,10 +96,10 @@ Future<List<AvailableTranslation>> loadAvailableTranslations() async {
       //.get("http://10.0.2.2:8080/available_translations.json");
       .get("http://localhost:8080/available_translations.json");
 */
-  var availableTranslationsString = await rootBundle.loadString('assets/available_translations.json');
+  var availableTranslationsString =
+      await rootBundle.loadString('assets/available_translations.json');
   return compute(_parseAvailableTranslations, availableTranslationsString);
 }
-
 
 void createApplicationDirectory() async {
   var dir = await getApplicationSupportDirectory();

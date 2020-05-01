@@ -1,14 +1,9 @@
-enum Language {
-  DE,
-  EN,
-  ES,
-  FR
-}
+enum Language { DE, EN, ES, FR }
 
-class LanguageCodeHandler{
-  static Language parseLanguageCode(String code){
+class LanguageCodeHandler {
+  static Language parseLanguageCode(String code) {
     code = code.toUpperCase();
-    switch (code){
+    switch (code) {
       case "DE":
         return Language.DE;
         break;
