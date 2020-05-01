@@ -12,14 +12,14 @@ class _DownloadPageState extends State<DownloadPage> {
   @override
   Widget build(BuildContext context) {
     return new Scaffold(
-      appBar: new AppBar(
-        title: new Text("Download Language Set"),
+      appBar: AppBar(
+        title: Text("Download Language Set"),
       ),
       body: ChangeNotifierProvider<TranslationState>(
         create: (_) => TranslationState(),
         child: new Column(
           children: <Widget>[
-            Text("Select what lagnauge combinations you want to download"),
+            Text("Select what language combinations you want to download", style: TextStyle(height: 4, fontSize: 14)),
             Expanded(child: LanguageList())
           ],
         ),
