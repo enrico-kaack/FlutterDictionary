@@ -63,6 +63,10 @@ class _MyHomePageState extends State<MyHomePage> {
                 var result = await db.searchInAll(value);
                 _updateList(result);
               },
+              onSubmitted: (String value) async {
+                var result = await db.searchInAll(value);
+                _updateList(result);
+              },
             ),
           ),
           Divider(),
