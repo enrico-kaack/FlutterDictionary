@@ -1,9 +1,36 @@
 [
   {
-    "source": "DE-de",
-    "targets": [{
-      "target": "EN-en",
+    "source": "DE",
+    "targets": [
+      {
+      "target": "EN",
       "uri": "https://download.wikdict.com/dictionaries/sqlite/2_2020-02/generic/de-en.sqlite3"
-    }]
+      },
+      {
+        "target": "FR",
+        "uri": "https://download.wikdict.com/dictionaries/sqlite/2_2020-02/generic/de-fr.sqlite3"
+      },
+      {
+        "target": "ES",
+        "uri": "https://download.wikdict.com/dictionaries/sqlite/2_2020-02/generic/de-es.sqlite3"
+      }
+    ]
+  },
+  {
+    "source": "EN",
+    "targets": [
+      {
+        "target": "DE",
+        "uri": "https://download.wikdict.com/dictionaries/sqlite/2_2020-02/generic/en-de.sqlite3"
+      },
+      {
+        "target": "FR",
+        "uri": "https://download.wikdict.com/dictionaries/sqlite/2_2020-02/generic/en-fr.sqlite3"
+      },
+      {
+        "target": "ES",
+        "uri": "https://download.wikdict.com/dictionaries/sqlite/2_2020-02/generic/en-es.sqlite3"
+      }
+    ]
   }
 ]

@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:translator/database.dart';
+import 'package:flutter/widgets.dart';
+import 'package:translator/translation_service.dart';
 import 'package:translator/download_page.dart';
 
 void main() => runApp(MyApp());
@@ -37,6 +38,7 @@ class _MyHomePageState extends State<MyHomePage> {
     });
   }
 
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -47,7 +49,7 @@ class _MyHomePageState extends State<MyHomePage> {
             icon: Icon(Icons.file_download),
             onPressed: () {
               Navigator.push(context,
-                  new MaterialPageRoute(builder: (ctxt) => new DownloadPage()));
+                  new MaterialPageRoute(builder: (ctxt) => new DownloadPage())).then((value) => this.db = TranslationService());
             },
           ),
         ],
@@ -58,8 +60,7 @@ class _MyHomePageState extends State<MyHomePage> {
             margin: EdgeInsets.all(5.0),
             child: TextField(
               onChanged: (String value) async {
-                await db.openDatabaseOrCopyIfNotExists();
-                var result = await db.search(value);
+                var result = await db.searchInAll(value);
                 _updateList(result);
               },
             ),
@@ -128,6 +129,7 @@ class SecondScreen extends StatefulWidget {
   SecondScreen(TranslationEntry translationEntry) {
     this.translationEntry = translationEntry;
   }
+
 
   @override
   State<StatefulWidget> createState() => _SecondScreenState();
