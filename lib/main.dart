@@ -5,7 +5,10 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/painting.dart';
 import 'package:flutter/widgets.dart';
+import 'package:provider/provider.dart';
+import 'package:translator/datase_loader.dart';
 import 'package:translator/download_page.dart';
+import 'package:translator/license_page.dart' as ownLicensePage;
 import 'package:translator/translation_service.dart';
 
 void main() => runApp(MyApp());
@@ -71,7 +74,7 @@ class _MyHomePageState extends State<MyHomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Translator"),
+        title: Text("Dictionary"),
         actions: <Widget>[
           IconButton(
             icon: Icon(Icons.library_add),
@@ -85,6 +88,48 @@ class _MyHomePageState extends State<MyHomePage> {
             },
           ),
         ],
+      ),
+      drawer: Drawer(
+        child: ListView(
+          padding: EdgeInsets.zero,
+          children: <Widget>[
+            DrawerHeader(
+              decoration: BoxDecoration(color: ThemeData().accentColor),
+            ),
+            ListTile(
+              title: Text("Manage Languages"),
+              subtitle: Text("Download new Languages"),
+              trailing: Icon(Icons.library_add),
+              onTap: (){
+                Navigator.push(
+                    context,
+                    new MaterialPageRoute(
+                        builder: (ctxt) => new DownloadPage())).then((value) {
+                  _recreateDatabaseList();
+                });
+              },
+            ),
+            ListTile(
+              title: Text("Licensing"),
+              subtitle: Text("Show the license of the dictionary data"),
+              onTap: (){
+                Navigator.push(
+                    context,
+                    new MaterialPageRoute(
+                        builder: (ctxt) => new ownLicensePage.LicensePage()));
+              },
+            ),
+            ListTile(
+              title: Text("About"),
+              subtitle: Text("About the app and the autor"),
+              trailing: Icon(Icons.person),
+              onTap: (){
+
+              },
+            ),
+
+          ],
+        ),
       ),
       body: Column(
         children: <Widget>[
@@ -108,8 +153,7 @@ class _MyHomePageState extends State<MyHomePage> {
       bottomSheet: StreamBuilder<bool>(
         stream: _intialStateStreamController.stream,
         builder: (context, snapshot) {
-          print("STREAM " + snapshot.data.toString());
-          if (snapshot.hasData && snapshot.data == true) {
+          if (snapshot.data == true) {
             return Container(
               height: 200,
               margin: EdgeInsets.all(10),
